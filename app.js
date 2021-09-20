@@ -41,12 +41,18 @@ gallery.insertAdjacentHTML('afterbegin', imageMarkup)
 
 // создаю фунцию открытия модального окна и 
 // добавляю картинку большого размера
+function onModalOpen() {
+  window.addEventListener('keydown', onModalEscClose)
+     lightBox.classList.add('is-open')
+}
+
+
 gallery.addEventListener('click', onImageClick) 
 
 function onImageClick(e) {
   e.preventDefault();
   if (e.target.nodeName === 'IMG') {
-    lightBox.classList.add('is-open')
+    onModalOpen()
     const largeImg = e.target.getAttribute('data-source')
     lightbox__image.setAttribute('src', largeImg);
   lightbox__image.alt = e.target.alt;
@@ -54,18 +60,22 @@ function onImageClick(e) {
 }
 
 
-// создание функции закрытия модального окна
+// создание функции закрытия модального окна 
 function hideElement() {
   lightBox.classList.remove('is-open')
+  window.removeEventListener('keydown', onModalEscClose);
+    lightbox__image.src = '';
+  lightbox__image.alt = '';
 }
 
 // Закрытие модального окна клавишей ESC
-window.addEventListener('keydown', onModalEscClose)
+// window.addEventListener('keydown', onModalEscClose)
 
 function onModalEscClose(e) {
   if (e.code === 'Escape')
     hideElement()
 }
+
 
 
 // Закрытие модального окна по классу .lightbox__overlay
@@ -80,13 +90,8 @@ function onClickModalClassClose(e) {
 
 
 // Закрытие модального окна по кнопке x
-button.addEventListener('click', onClickModalBtnClose)
+button.addEventListener('click', onClickModalBtnClose => hideElement())
 
-function onClickModalBtnClose(e) {
-  if (e.currentTarget === e.target) {
-    hideElement()
-  }
-}
 
 // Сделал корявый слайдер
 window.addEventListener('keydown', onSliderMove)
@@ -98,18 +103,28 @@ function onSliderMove(e) {
     const previousEl = indexOfEl - 1
     const nextEl = indexOfEl + 1
     if (e.code === 'ArrowLeft') {
+      if (e.target.className === document.createElement('img').className) {
+        return;
+      }
+       const indexLeft = indexOfEl - 1
+      if (indexOfEl === 0) {
+        return;
+      }
       lightbox__image.src = galleryEl[previousEl]
     }
     if (e.code === 'ArrowRight') {
+      if (nextEl === galleryEl.length) {
+        return;
+      }
       lightbox__image.src = galleryEl[nextEl]
     }
   }
 }
 
 // Снимаем слушателей 
-if (lightBox.classList.contains('is-open')) {
-  window.removeEventListener('keydown', onModalEscClose);
-  lightBox.removeEventListener('click', onClickModalClassClose);
-  button.removeEventListener('click', onClickModalBtnClose);
-  window.addEventListener('keydown', onSliderMove)
-}
+// if (lightBox.classList.contains('is-open')) {
+//   window.removeEventListener('keydown', onModalEscClose);
+//   lightBox.removeEventListener('click', onClickModalClassClose);
+//   button.removeEventListener('click', onClickModalBtnClose);
+//   window.addEventListener('keydown', onSliderMove)
+// }
